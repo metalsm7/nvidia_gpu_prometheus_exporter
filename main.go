@@ -31,6 +31,8 @@ type Collector struct {
 	powerUsage  *prometheus.GaugeVec
 	temperature *prometheus.GaugeVec
 	fanSpeed    *prometheus.GaugeVec
+	encoderUtilization    *prometheus.GaugeVec
+	decoderUtilization    *prometheus.GaugeVec
 }
 
 func NewCollector() *Collector {
@@ -90,6 +92,22 @@ func NewCollector() *Collector {
 			},
 			labels,
 		),
+		encoderUtilization: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "encoder_utilization_percent",
+				Help:      "EncoderUtilization of the GPU device as a percent of its maximum",
+			},
+			labels,
+		),
+		decoderUtilization: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "decoder_utilization_percent",
+				Help:      "DecoderUtilization of the GPU device as a percent of its maximum",
+			},
+			labels,
+		),
 	}
 }
 
@@ -101,6 +119,8 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	c.powerUsage.Describe(ch)
 	c.temperature.Describe(ch)
 	c.fanSpeed.Describe(ch)
+	c.encoderUtilization.Describe(ch)
+	c.decoderUtilization.Describe(ch)
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
@@ -114,6 +134,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	c.powerUsage.Reset()
 	c.temperature.Reset()
 	c.fanSpeed.Reset()
+	c.encoderUtilization.Reset()
+	c.decoderUtilization.Reset()
 
 	numDevices, err := gonvml.DeviceCount()
 	if err != nil {
@@ -185,6 +207,20 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 		} else {
 			c.fanSpeed.WithLabelValues(minor, uuid, name).Set(float64(fanSpeed))
 		}
+
+		encoderUtilization, err := dev.EncoderUtilization()
+		if err != nil {
+			log.Printf("EncoderUtilization() error: %v", err)
+		} else {
+			c.encoderUtilization.WithLabelValues(minor, uuid, name).Set(float64(encoderUtilization))
+		}
+
+		decoderUtilization, err := dev.DecoderUtilization()
+		if err != nil {
+			log.Printf("DecoderUtilization() error: %v", err)
+		} else {
+			c.decoderUtilization.WithLabelValues(minor, uuid, name).Set(float64(decoderUtilization))
+		}
 	}
 	c.usedMemory.Collect(ch)
 	c.totalMemory.Collect(ch)
@@ -192,6 +228,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	c.powerUsage.Collect(ch)
 	c.temperature.Collect(ch)
 	c.fanSpeed.Collect(ch)
+	c.encoderUtilization.Collect(ch)
+	c.decoderUtilization.Collect(ch)
 }
 
 func main() {
