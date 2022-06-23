@@ -208,14 +208,14 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 			c.fanSpeed.WithLabelValues(minor, uuid, name).Set(float64(fanSpeed))
 		}
 
-		encoderUtilization, err := dev.EncoderUtilization()
+		encoderUtilization, encoderSample, err := dev.EncoderUtilization()
 		if err != nil {
 			log.Printf("EncoderUtilization() error: %v", err)
 		} else {
 			c.encoderUtilization.WithLabelValues(minor, uuid, name).Set(float64(encoderUtilization))
 		}
 
-		decoderUtilization, err := dev.DecoderUtilization()
+		decoderUtilization, decoderSample, err := dev.DecoderUtilization()
 		if err != nil {
 			log.Printf("DecoderUtilization() error: %v", err)
 		} else {
