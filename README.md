@@ -1,7 +1,7 @@
 NVIDIA GPU Prometheus Exporter
 ------------------------------
 
-Fork of [nvidia_gpu_prometheus_exporter](https://github.com/utkuozdemir/nvidia_gpu_exporter).
+Fork of [nvidia_gpu_prometheus_exporter](https://github.com/mindprince/nvidia_gpu_prometheus_exporter).
 
 encoder_utilization, decoder_utilization added version.
 
