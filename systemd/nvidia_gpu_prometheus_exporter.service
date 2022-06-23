@@ -1,0 +1,30 @@
+[Unit]
+Description=Nvidia GPU Prometheus Exporter
+After=network-online.target
+
+[Service]
+Type=simple
+
+# User=nvidia_gpu_exporter
+# Group=nvidia_gpu_exporter
+
+ExecStart=/usr/local/bin/nvidia_gpu_prometheus_exporter -web.listen-address ":9445"
+
+SyslogIdentifier=nvidia_gpu_prometheus_exporter
+
+Restart=always
+RestartSec=1
+
+NoNewPrivileges=yes
+
+ProtectHome=yes
+ProtectSystem=strict
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectProc=yes
+
+[Install]
+WantedBy=multi-user.target
