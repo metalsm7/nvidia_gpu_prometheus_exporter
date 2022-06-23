@@ -32,7 +32,9 @@ type Collector struct {
 	temperature *prometheus.GaugeVec
 	fanSpeed    *prometheus.GaugeVec
 	encoderUtilization    *prometheus.GaugeVec
+	encoderSample    *prometheus.GaugeVec
 	decoderUtilization    *prometheus.GaugeVec
+	decoderSample    *prometheus.GaugeVec
 }
 
 func NewCollector() *Collector {
@@ -100,11 +102,27 @@ func NewCollector() *Collector {
 			},
 			labels,
 		),
+		encoderSample: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "encoder_sample_seconds",
+				Help:      "EncoderSample of the GPU device as a percent of its maximum",
+			},
+			labels,
+		),
 		decoderUtilization: prometheus.NewGaugeVec(
 			prometheus.GaugeOpts{
 				Namespace: namespace,
 				Name:      "decoder_utilization_percent",
 				Help:      "DecoderUtilization of the GPU device as a percent of its maximum",
+			},
+			labels,
+		),
+		decoderSample: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: namespace,
+				Name:      "decoder_sample_seconds",
+				Help:      "DecoderSample of the GPU device as a percent of its maximum",
 			},
 			labels,
 		),
@@ -120,7 +138,9 @@ func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	c.temperature.Describe(ch)
 	c.fanSpeed.Describe(ch)
 	c.encoderUtilization.Describe(ch)
+	c.encoderSample.Describe(ch)
 	c.decoderUtilization.Describe(ch)
+	c.decoderSample.Describe(ch)
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
@@ -135,7 +155,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	c.temperature.Reset()
 	c.fanSpeed.Reset()
 	c.encoderUtilization.Reset()
+	c.encoderSample.Reset()
 	c.decoderUtilization.Reset()
+	c.decoderSample.Reset()
 
 	numDevices, err := gonvml.DeviceCount()
 	if err != nil {
@@ -229,7 +251,9 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	c.temperature.Collect(ch)
 	c.fanSpeed.Collect(ch)
 	c.encoderUtilization.Collect(ch)
+	c.encoderSample.Collect(ch)
 	c.decoderUtilization.Collect(ch)
+	c.decoderSample.Collect(ch)
 }
 
 func main() {
